@@ -1,0 +1,142 @@
+﻿<Window
+    x:Class="Deselection_Issue.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:Deselection_Issue.AttachedProperties"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:Deselection_Issue.ViewModels"
+    Title="MainWindow"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterScreen     "
+    mc:Ignorable="d">
+
+    <Window.DataContext>
+        <viewModels:MainViewModel />
+    </Window.DataContext>
+    <StackPanel>
+
+
+        <!--#region Buttons-->
+        <StackPanel Orientation="Horizontal">
+            <GroupBox Header="Item Management">
+                <StackPanel Orientation="Vertical">
+                    <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding AddTrackCommand}"
+                    Content="Add Track" />
+                    <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding RemoveSelectedItemCommand}"
+                    Content="Remove" />
+                    <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding DeselectCommand}"
+                    Content="Deselect" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Hierarchy Management">
+                <StackPanel Orientation="Vertical">
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding AddSiblingCommand}"
+                        Content="Add Sibling" />
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding AddChildCommand}"
+                        Content="Add Child" />
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding MoveUpCommand}"
+                        Content="Move Up" />
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding MoveDownCommand}"
+                        Content="Move Down" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Expansion">
+                <StackPanel Orientation="Vertical">
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding ExpandAllCommand}"
+                        Content="Expand All" />
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding CollapseAllCommand}"
+                        Content="Collapse All" />
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <!--#endregion-->
+
+
+        <!--#region TreeView-->
+        <TreeView 
+            x:Name="myTreeView"
+            Height="300"
+            behaviors:TreeViewSelectedItemBehavior.SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+            BorderBrush="Black"
+            BorderThickness="1"
+            ItemsSource="{Binding HierarchicalItems}">
+
+            <TreeView.Resources>
+                <!--
+                    * Focused selection = Red
+                    * Unfocused selection = DarkGreen
+                -->
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkGreen" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkRed" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+            </TreeView.Resources>
+
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
+
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type viewModels:HierarchicalItemViewModel}" ItemsSource="{Binding Children}">
+                    <TextBlock Text="{Binding Name}" />
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+
+        </TreeView>
+        <!--#endregion-->
+
+
+        <!--#region Log-->
+        <StackPanel Orientation="Vertical" Margin="5" Background="AntiqueWhite">
+            <!-- Selected Item Row -->
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected Item: " FontWeight="Bold" Width="100"/>
+                <TextBlock Text="{Binding SelectedItem.Name, FallbackValue='None'}"
+                           FontWeight="Bold"
+                           Foreground="{Binding SelectedItem.Name, Converter={StaticResource SelectedItemForegroundConverter}}" />
+            </StackPanel>
+
+            <!-- Focused Row -->
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Focused: " FontWeight="Bold" Width="100"/>
+                <TextBlock Text="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin}"
+                           FontWeight="Bold"
+                           Foreground="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin, Converter={StaticResource FocusedForegroundConverter}}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!--#endregion-->
+
+
+    </StackPanel>
+</Window>
