@@ -4,12 +4,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:Deselection_Issue.AttachedProperties"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Deselection_Issue"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Deselection_Issue.ViewModels"
+    xmlns:customControls="clr-namespace:Deselection_Issue.CustomControls"
     Title="MainWindow"
     SizeToContent="WidthAndHeight"
     WindowStartupLocation="CenterScreen     "
     mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding Key="R" Command="{Binding RemoveSelectedItemCommand}" />
+        <KeyBinding Key="A" Command="{Binding AddTrackCommand}" />
+        <KeyBinding Key="C" Command="{Binding AddChildCommand}" />
+        <KeyBinding Key="S" Command="{Binding AddSiblingCommand}" />
+        <KeyBinding Key="OemMinus" Command="{Binding CollapseAllCommand}" />
+        <KeyBinding Key="OemPlus" Command="{Binding ExpandAllCommand}" />
+    </Window.InputBindings>
 
     <Window.DataContext>
         <viewModels:MainViewModel />
@@ -22,20 +32,20 @@
             <GroupBox Header="Item Management">
                 <StackPanel Orientation="Vertical">
                     <Button
-                    Width="100"
-                    Margin="5"
-                    Command="{Binding AddTrackCommand}"
-                    Content="Add Track" />
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding AddTrackCommand}"
+                        Content="Add Track" />
                     <Button
-                    Width="100"
-                    Margin="5"
-                    Command="{Binding RemoveSelectedItemCommand}"
-                    Content="Remove" />
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding RemoveSelectedItemCommand}"
+                        Content="Remove" />
                     <Button
-                    Width="100"
-                    Margin="5"
-                    Command="{Binding DeselectCommand}"
-                    Content="Deselect" />
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding DeselectCommand}"
+                        Content="Deselect" />
                 </StackPanel>
             </GroupBox>
             <GroupBox Header="Hierarchy Management">
@@ -81,7 +91,7 @@
 
 
         <!--#region TreeView-->
-        <TreeView 
+        <customControls:CustomTreeView
             x:Name="myTreeView"
             Height="300"
             behaviors:TreeViewSelectedItemBehavior.SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
@@ -89,7 +99,7 @@
             BorderThickness="1"
             ItemsSource="{Binding HierarchicalItems}">
 
-            <TreeView.Resources>
+            <customControls:CustomTreeView.Resources>
                 <!--
                     * Focused selection = Red
                     * Unfocused selection = DarkGreen
@@ -98,40 +108,51 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="DarkRed" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
-            </TreeView.Resources>
+            </customControls:CustomTreeView.Resources>
 
-            <TreeView.ItemContainerStyle>
+            <customControls:CustomTreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                 </Style>
-            </TreeView.ItemContainerStyle>
+            </customControls:CustomTreeView.ItemContainerStyle>
 
-            <TreeView.ItemTemplate>
+            <customControls:CustomTreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type viewModels:HierarchicalItemViewModel}" ItemsSource="{Binding Children}">
                     <TextBlock Text="{Binding Name}" />
                 </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
+            </customControls:CustomTreeView.ItemTemplate>
 
-        </TreeView>
+        </customControls:CustomTreeView>
         <!--#endregion-->
 
 
         <!--#region Log-->
-        <StackPanel Orientation="Vertical" Margin="5" Background="AntiqueWhite">
-            <!-- Selected Item Row -->
+        <StackPanel
+            Margin="5"
+            Background="AntiqueWhite"
+            Orientation="Vertical">
+            <!--  Selected Item Row  -->
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Selected Item: " FontWeight="Bold" Width="100"/>
-                <TextBlock Text="{Binding SelectedItem.Name, FallbackValue='None'}"
-                           FontWeight="Bold"
-                           Foreground="{Binding SelectedItem.Name, Converter={StaticResource SelectedItemForegroundConverter}}" />
+                <TextBlock
+                    Width="100"
+                    FontWeight="Bold"
+                    Text="Selected Item: " />
+                <TextBlock
+                    FontWeight="Bold"
+                    Foreground="{Binding SelectedItem.Name, Converter={StaticResource SelectedItemForegroundConverter}}"
+                    Text="{Binding SelectedItem.Name, FallbackValue='None'}" />
             </StackPanel>
 
-            <!-- Focused Row -->
+            <!--  Focused Row  -->
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Focused: " FontWeight="Bold" Width="100"/>
-                <TextBlock Text="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin}"
-                           FontWeight="Bold"
-                           Foreground="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin, Converter={StaticResource FocusedForegroundConverter}}" />
+                <TextBlock
+                    Width="100"
+                    FontWeight="Bold"
+                    Text="Focused: " />
+                <TextBlock
+                    FontWeight="Bold"
+                    Foreground="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin, Converter={StaticResource FocusedForegroundConverter}}"
+                    Text="{Binding ElementName=myTreeView, Path=IsKeyboardFocusWithin}" />
             </StackPanel>
         </StackPanel>
 

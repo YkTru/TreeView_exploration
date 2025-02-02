@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Deselection_Issue.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 
 namespace Deselection_Issue.ViewModels
 {
@@ -37,22 +38,43 @@ namespace Deselection_Issue.ViewModels
         [RelayCommand(CanExecute = nameof(CanRemoveSelectedItem))]
         private void RemoveSelectedItem()
         {
-            var selected = SelectedItem;
-            if (selected is null)
+            if (SelectedItem == null)
                 return;
 
-            var siblings = selected.Parent?.Children ?? HierarchicalItems; //no parent = root item
-            var index = siblings.IndexOf(selected);
-            if (index < 0)
-                return;
+            var siblings = SelectedItem.Parent?.Children ?? HierarchicalItems;
+            int index = siblings.IndexOf(SelectedItem);
+            int newIndex = -1;
+
+            if (index > 0)
+            {
+                newIndex = index - 1;
+            }
+
+            else if (siblings.Count > 1)
+            {
+                newIndex = index + 1;
+            }
+
+            if (newIndex >= 0 && newIndex < siblings.Count)
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    SelectedItem = siblings[newIndex];
+                }, System.Windows.Threading.DispatcherPriority.Send);
+            }
+            else
+            {
+                SelectedItem = null;
+            }
 
             siblings.RemoveAt(index);
-
-            // select previous item, else first item, else null
-            SelectedItem = siblings.ElementAtOrDefault(index - 1) ?? siblings.FirstOrDefault();
-
-            RefreshCanExecute();
         }
+
+
+
+
+
+
         private bool CanRemoveSelectedItem() => SelectedItem is not null;
 
 
